@@ -21,8 +21,8 @@ exports.handler = function (eventObject, context) {
 	return s3Util.downloadFileFromS3(inputBucket, key, inputFile)
 		.then(() => childProcessPromise.spawn(
 			'/opt/bin/ffmpeg',
-			['-loglevel', 'error', '-y', '-i', inputFile, '-f', 'mp4',  outputFile],
-			{env: process.env, cwd: workdir}
+			['-loglevel', 'error', '-y', '-i', inputFile, '-vcodec', 'libx264', '-crf', '23', '-filter_complex', '"scale=iw*min(1\\,min(414/iw\\,736/ih)):-2"', outputFile],
+			{env: process.env, cwd: workdir, shell: true}
 		))
 		.then(() => s3Util.uploadFileToS3(OUTPUT_BUCKET, resultKey, outputFile, MIME_TYPE));
 };

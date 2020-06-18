@@ -1,33 +1,41 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: A serverless component for conversion from MOV to MP4 
+Description: A serverless component for MP4 compression
 Parameters:
   ConversionTimeout:
     Type: Number
     Default: 180
   InputS3BucketName:
     Type: String
-    Default: 's3-lambda-ffmpeg-input-mov-bucket'
+    Default: 'bucket-video-to-compress'
     MinLength: 3
   OutputS3BucketName:
     Type: String
-    Default: 's3-lambda-ffmpeg-output-mp4-bucket'
+    Default: 'bucket-video-compressed'
     MinLength: 3
 Resources:
   InputS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref InputS3BucketName
+
+  ffmpeglambdalayer:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:145266761615:applications/ffmpeg-lambda-layer
+        SemanticVersion: 1.0.0
+
   ConvertFileFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
       Timeout: !Ref ConversionTimeout
       MemorySize: 1024
-      Runtime: nodejs8.10
+      Runtime: nodejs12.x
       CodeUri: src/
       Layers:
-        - 'arn:aws:lambda:us-east-1:145266761615:layer:ffmpeg:4'
+        - !GetAtt ffmpeglambdalayer.Outputs.LayerVersion
       Policies:
       - S3CrudPolicy:
           BucketName: !Ref OutputS3BucketName
