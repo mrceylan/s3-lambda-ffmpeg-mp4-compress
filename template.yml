@@ -7,11 +7,11 @@ Parameters:
     Default: 180
   InputS3BucketName:
     Type: String
-    Default: 'bucket-video-to-compress'
+    Default: 'emrevideo'
     MinLength: 3
   OutputS3BucketName:
     Type: String
-    Default: 'bucket-video-compressed'
+    Default: 'emrevideocompressed'
     MinLength: 3
 Resources:
   InputS3Bucket:
